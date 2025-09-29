@@ -76,9 +76,6 @@ function buildLectureUrl(unitId, context) {
   url.searchParams.set('tab', context.tab || 'curriculum');
   url.searchParams.set('type', context.type || 'LECTURE');
   url.searchParams.set('unitId', unitId);
-  if (context.subtitleLanguage) {
-    url.searchParams.set('subtitleLanguage', context.subtitleLanguage);
-  }
   return url.toString();
 }
 
@@ -147,11 +144,14 @@ async function visitLecturePage(unitId, context) {
       }
     }
 
+    const startedWithoutSubtitle = !new URL(targetUrl).searchParams.has('subtitleLanguage');
+    const hasSubtitle = finalUrl ? new URL(finalUrl).searchParams.has('subtitleLanguage') : false;
+
     appendLog({
       unitId,
       phase: 'visit',
       status: waitResult.status === 'complete' ? 'success' : waitResult.status === 'cancelled' ? 'cancelled' : 'warning',
-      visit: { url: finalUrl, result: waitResult.status }
+      visit: { url: finalUrl, result: waitResult.status, autoAppended: startedWithoutSubtitle && hasSubtitle }
     });
 
     await delay(300);
@@ -337,16 +337,16 @@ async function runCompletion(unitIds, timecodes, context) {
         }
 
         const finalUrl = visitResult.url || '';
-        const hasSubtitleLanguage = finalUrl.includes('subtitleLanguage=ko');
+        const hasSubtitle = finalUrl.includes('subtitleLanguage=');
 
-        if (!hasSubtitleLanguage) {
+        if (!hasSubtitle) {
           currentRun.skipped += 1;
           currentRun.lastUnitId = unitId;
           appendLog({
             unitId,
             phase: 'skip',
             status: 'skipped',
-            message: 'subtitleLanguage=ko 파라미터가 없어 건너뜁니다.',
+            message: 'subtitleLanguage 파라미터가 없어 건너뜁니다.',
             visit: { url: finalUrl || '(알 수 없음)' }
           });
           notifyProgress({
@@ -379,7 +379,7 @@ async function runCompletion(unitIds, timecodes, context) {
           continue;
         }
 
-        const timecode = timecodes[currentRun.timeIndex];
+        const timecode = timecodes[currentRun.timeIndex + currentRun.skipped];
 
         if (!timecode || Number.isNaN(timecode.durationSeconds)) {
           currentRun.skipped += 1;
