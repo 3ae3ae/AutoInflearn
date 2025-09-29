@@ -1,4 +1,4 @@
-# Inflearn Unit Completer
+# AutoInflearn
 
 인프런 강의의 Unit을 자동으로 완료 처리하는 Chrome 확장 프로그램입니다.
 
