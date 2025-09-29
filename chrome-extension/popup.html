@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>Inflearn Unit Completer</title>
+  <style>
+    body {
+      min-width: 240px;
+      margin: 16px;
+      font-family: Arial, sans-serif;
+    }
+    h1 {
+      font-size: 16px;
+      margin: 0 0 12px;
+    }
+    button {
+      width: 100%;
+      padding: 8px;
+      background-color: #0b74de;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    button:disabled {
+      background-color: #6a9fd8;
+      cursor: not-allowed;
+    }
+    button.ghost {
+      background-color: #fff;
+      color: #0b74de;
+      border: 1px solid #0b74de;
+    }
+    #status {
+      margin-top: 12px;
+      font-size: 13px;
+      color: #333;
+      white-space: pre-line;
+    }
+    #list-container {
+      margin-top: 12px;
+      padding: 8px;
+      border: 1px solid #d3d3d3;
+      border-radius: 4px;
+      background: #f7f9fc;
+    }
+    #list-title {
+      font-size: 13px;
+      font-weight: bold;
+      margin-bottom: 6px;
+    }
+    #unit-list {
+      max-height: 120px;
+      overflow-y: auto;
+      margin: 0;
+      padding-left: 18px;
+      font-size: 13px;
+    }
+    #actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 10px;
+    }
+    #actions button {
+      width: auto;
+      flex: 1;
+    }
+    #logs-container {
+      margin-top: 16px;
+      border-top: 1px solid #dcdcdc;
+      padding-top: 12px;
+    }
+    #logs-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
+    }
+    #logs-title {
+      font-size: 13px;
+      font-weight: bold;
+    }
+    #logs-actions {
+      display: flex;
+      gap: 6px;
+    }
+    #logs-actions button {
+      width: auto;
+      padding: 4px 8px;
+      font-size: 12px;
+    }
+    #request-logs {
+      max-height: 180px;
+      overflow-y: auto;
+      margin: 0;
+      padding-left: 12px;
+      font-size: 12px;
+      color: #222;
+    }
+    #request-logs li {
+      margin-bottom: 6px;
+      line-height: 1.4;
+      white-space: pre-wrap;
+      border-left: 2px solid #bac8e0;
+      padding-left: 8px;
+    }
+    .log-success {
+      border-color: #0a7a29;
+      color: #0a7a29;
+    }
+    .log-error {
+      border-color: #c0392b;
+      color: #c0392b;
+    }
+    .hidden {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <h1>Inflearn Unit Completer</h1>
+  <button id="start-btn">unitId 찾기</button>
+  <div id="list-container" class="hidden">
+    <div id="list-title">추출된 unitId 목록</div>
+    <ul id="unit-list"></ul>
+    <div id="actions">
+      <button id="confirm-btn">요청 보내기</button>
+      <button id="cancel-btn" class="ghost">취소</button>
+    </div>
+  </div>
+  <div id="status">대상 unitId를 찾는 중이 아닙니다.</div>
+  <div id="logs-container">
+    <div id="logs-header">
+      <span id="logs-title">요청 로그</span>
+      <div id="logs-actions">
+        <button id="refresh-logs" class="ghost">새로고침</button>
+        <button id="clear-logs" class="ghost">초기화</button>
+      </div>
+    </div>
+    <ul id="request-logs"></ul>
+  </div>
+  <script src="popup.js"></script>
+</body>
+</html>

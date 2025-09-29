@@ -1,0 +1,29 @@
+{
+  "manifest_version": 3,
+  "name": "Inflearn Unit Completer",
+  "version": "0.1.0",
+  "description": "Extracts unitId values from the current page and marks them complete via Inflearn's API.",
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "Inflearn Unit Completer"
+  },
+  "permissions": [
+    "activeTab",
+    "scripting",
+    "tabs",
+    "storage"
+  ],
+  "host_permissions": [
+    "https://www.inflearn.com/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["contentScript.js"],
+      "run_at": "document_idle"
+    }
+  ]
+}
