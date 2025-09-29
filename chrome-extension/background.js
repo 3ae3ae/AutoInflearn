@@ -379,7 +379,7 @@ async function runCompletion(unitIds, timecodes, context) {
           continue;
         }
 
-        const timecode = timecodes[currentRun.timeIndex + currentRun.skipped];
+        const timecode = timecodes[currentRun.timeIndex];
 
         if (!timecode || Number.isNaN(timecode.durationSeconds)) {
           currentRun.skipped += 1;
