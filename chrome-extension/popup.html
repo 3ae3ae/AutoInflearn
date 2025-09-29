@@ -116,10 +116,40 @@
     .hidden {
       display: none;
     }
+    .input-group {
+      margin-bottom: 12px;
+    }
+    .input-group label {
+      display: block;
+      font-size: 13px;
+      font-weight: bold;
+      margin-bottom: 4px;
+      color: #333;
+    }
+    .input-group input {
+      width: 100%;
+      padding: 6px 8px;
+      border: 1px solid #d3d3d3;
+      border-radius: 4px;
+      font-size: 14px;
+      box-sizing: border-box;
+    }
+    .input-group input:focus {
+      outline: none;
+      border-color: #0b74de;
+      box-shadow: 0 0 0 2px rgba(11, 116, 222, 0.2);
+    }
+    .input-group input::placeholder {
+      color: #999;
+    }
   </style>
 </head>
 <body>
   <h1>Inflearn Unit Completer</h1>
+  <div class="input-group">
+    <label for="user-id-input">사용자 ID:</label>
+    <input type="number" id="user-id-input" placeholder="숫자로 된 사용자 ID를 입력하세요" />
+  </div>
   <button id="start-btn">unitId 찾기</button>
   <div id="list-container" class="hidden">
     <div id="list-title">추출된 unitId 목록</div>

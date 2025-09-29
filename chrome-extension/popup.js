@@ -7,12 +7,28 @@ const unitListElement = document.getElementById('unit-list');
 const refreshLogsButton = document.getElementById('refresh-logs');
 const clearLogsButton = document.getElementById('clear-logs');
 const requestLogsElement = document.getElementById('request-logs');
+const userIdInput = document.getElementById('user-id-input');
 
 let unitIds = [];
 let timecodes = [];
 let mismatchInfo = { unitCount: 0, timecodeCount: 0, mismatched: false };
 let courseContext = null;
 let isRunInProgress = false;
+
+// 저장된 userId 불러오기
+chrome.storage.local.get(['userId'], (result) => {
+  if (result.userId) {
+    userIdInput.value = result.userId;
+  }
+});
+
+// userId 입력 시 저장
+userIdInput.addEventListener('input', () => {
+  const userId = userIdInput.value.trim();
+  if (userId) {
+    chrome.storage.local.set({ userId: userId });
+  }
+});
 
 function setStatus(message) {
   statusElement.textContent = message;
@@ -109,10 +125,12 @@ function describeMismatch(info) {
 
 function describeCourseContext(context) {
   if (!context || !context.courseId) {
-    return '\n⚠️ 강의 ID를 찾지 못했습니다. 필요한 경우 수동으로 unit 페이지를 열어야 할 수 있습니다.';
+    const userIdText = context?.userId ? ` (사용자 ID: ${context.userId})` : '';
+    return `\n⚠️ 강의 ID를 찾지 못했습니다${userIdText}. 필요한 경우 수동으로 unit 페이지를 열어야 할 수 있습니다.`;
   }
   const params = [
     `courseId=${context.courseId}`,
+    `userId=${context.userId || '알 수 없음'}`,
     `tab=${context.tab}`,
     `type=${context.type}`,
     `subtitleLanguage=${context.subtitleLanguage}`
@@ -125,13 +143,22 @@ async function requestEntriesFromPage() {
   setStartLoading(true);
 
   try {
+    // userId 입력 검증
+    const userId = userIdInput.value.trim();
+    if (!userId || isNaN(userId)) {
+      throw new Error('올바른 사용자 ID를 입력해주세요.');
+    }
+
     const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
     if (!tab || tab.id === undefined) {
       throw new Error('활성 탭을 찾을 수 없습니다.');
     }
 
     await ensureContentScript(tab.id);
-    const response = await chrome.tabs.sendMessage(tab.id, { type: 'EXTRACT_UNIT_DATA' });
+    const response = await chrome.tabs.sendMessage(tab.id, { 
+      type: 'EXTRACT_UNIT_DATA',
+      userId: parseInt(userId)
+    });
 
     const units = response?.unitIds || [];
     if (!units.length) {
@@ -286,6 +313,14 @@ startButton.addEventListener('click', () => {
   if (isRunInProgress) {
     return;
   }
+  
+  const userId = userIdInput.value.trim();
+  if (!userId || isNaN(userId)) {
+    setStatus('올바른 사용자 ID를 입력해주세요.');
+    userIdInput.focus();
+    return;
+  }
+  
   requestEntriesFromPage();
 });
 
@@ -316,7 +351,7 @@ cancelButton.addEventListener('click', () => {
   }
 
   resetExtraction();
-  setStatus('대상 unitId를 찾는 중이 아닙니다.');
+  setStatus('사용자 ID를 입력하고 "unitId 찾기" 버튼을 눌러주세요.');
 });
 
 refreshLogsButton.addEventListener('click', () => {
@@ -387,3 +422,4 @@ chrome.runtime.sendMessage({ type: 'COMPLETION_STATUS_REQUEST' }, (response) => 
 resetExtraction();
 setStartLoading(false);
 loadRequestLogs();
+setStatus('사용자 ID를 입력하고 "unitId 찾기" 버튼을 눌러주세요.');

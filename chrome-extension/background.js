@@ -1,6 +1,4 @@
 const API_URL = 'https://www.inflearn.com/api/v2/unit/complete/current-time';
-const USER_ID = 1634556;
-const COOKIE_VALUE = 'connect.sid=s%3A4mOr5GPjrSER9SgGeuINj2RKBWmeCFty.F3anYwh6EG2una7taN%2Fm7wAxIBaTIGJA56nRviSfXW8; connectedSidString=connect.sid=s%3A4mOr5GPjrSER9SgGeuINj2RKBWmeCFty.F3anYwh6EG2una7taN%2Fm7wAxIBaTIGJA56nRviSfXW8*** Domain=.inflearn.com*** Path=/*** Expires=Mon; deviceId=daf8a4db-7540-49ee-abb0-60d450e7de11';
 const LECTURE_URL_BASE = 'https://www.inflearn.com/courses/lecture';
 
 let currentRun = null;
@@ -38,7 +36,6 @@ function buildHeaders() {
     ['referer', 'inflearn-mobile://CourseDetail'],
     ['user-agent', 'Android/15 (InflearnMobile 2025.908.28;)'],
     ['accept-encoding', 'gzip'],
-    ['cookie', COOKIE_VALUE]
   ];
 
   for (const [key, value] of desiredHeaders) {
@@ -56,11 +53,11 @@ function buildHeaders() {
   };
 }
 
-function buildPayload(unitId, durationSeconds) {
+function buildPayload(unitId, durationSeconds, userId) {
   const prevRequestTime = Date.now() - 60_000;
   return {
     unitId,
-    userId: USER_ID,
+    userId,
     currentTime: durationSeconds,
     prevRequestTime
   };
@@ -183,8 +180,8 @@ async function closeTab(tabId) {
   }
 }
 
-async function sendCompletionRequest(unitId, durationSeconds, meta) {
-  const payloadObj = buildPayload(unitId, durationSeconds);
+async function sendCompletionRequest(unitId, durationSeconds, meta, userId) {
+  const payloadObj = buildPayload(unitId, durationSeconds, userId);
   const payload = JSON.stringify(payloadObj);
   const { headers, appliedHeaders, blockedHeaders } = buildHeaders();
 
@@ -415,7 +412,7 @@ async function runCompletion(unitIds, timecodes, context) {
           durationSeconds: timecode.durationSeconds,
           timecode: timecode.raw,
           visitUrl: finalUrl
-        });
+        }, context.userId);
 
         currentRun.processed += 1;
         currentRun.lastUnitId = unitId;

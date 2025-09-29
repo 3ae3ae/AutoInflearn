@@ -54,7 +54,7 @@ function extractCourseIdFromHtml(html) {
   return null;
 }
 
-function extractCourseContext(html) {
+function extractCourseContext(html, userId) {
   try {
     const url = new URL(window.location.href);
     const { searchParams } = url;
@@ -68,23 +68,25 @@ function extractCourseContext(html) {
       courseId: Number.isNaN(courseId) ? null : courseId,
       tab,
       type,
-      subtitleLanguage
+      subtitleLanguage,
+      userId: userId || null
     };
   } catch (error) {
     return {
       courseId: extractCourseIdFromHtml(html),
       tab: 'curriculum',
       type: 'LECTURE',
-      subtitleLanguage: 'ko'
+      subtitleLanguage: 'ko',
+      userId: userId || null
     };
   }
 }
 
-function extractData() {
+function extractData(userId) {
   const html = document.documentElement?.innerHTML || '';
   const unitIds = extractUnitIds(html);
   const timecodes = extractTimecodes(html);
-  const courseContext = extractCourseContext(html);
+  const courseContext = extractCourseContext(html, userId);
 
   return {
     unitIds,
@@ -100,7 +102,7 @@ function extractData() {
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message?.type === 'EXTRACT_UNIT_DATA') {
-    const data = extractData();
+    const data = extractData(message.userId);
     sendResponse(data);
   }
 });
